@@ -1,0 +1,27 @@
+<!-- src/app/shared/navbar/navbar/navbar.component.html -->
+<nav class="bg-blue-600 p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <div class="text-white font-bold text-xl">Space Research</div>
+      <div class="flex space-x-4">
+        <a 
+          routerLink="/users" 
+          [ngClass]="{'bg-blue-700': router.url === '/users'}" 
+          class="text-white px-3 py-2 rounded hover:bg-blue-700">
+          Users
+        </a>
+        <a 
+          routerLink="/missions" 
+          [ngClass]="{'bg-blue-700': router.url === '/missions'}" 
+          class="text-white px-3 py-2 rounded hover:bg-blue-700">
+          Missions
+        </a>
+        <!-- Add other navigation links similarly -->
+        <button 
+          (click)="logout()" 
+          class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600">
+          Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+  

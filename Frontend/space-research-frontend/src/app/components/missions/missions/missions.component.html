@@ -1,0 +1,156 @@
+<!-- src/app/components/missions/missions.component.html -->
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Missions</h1>
+    
+    <div class="flex justify-end mb-4">
+      <button 
+        (click)="openAddMissionModal()" 
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        Add Mission
+      </button>
+    </div>
+    
+    <table class="min-w-full bg-white">
+      <thead>
+        <tr>
+          <th class="py-2">ID</th>
+          <th class="py-2">Name</th>
+          <th class="py-2">Description</th>
+          <th class="py-2">Director</th>
+          <th class="py-2">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Iterate over missions and display data -->
+        <tr *ngFor="let mission of missions" class="text-center border-t">
+          <td class="py-2">{{ mission.missionId }}</td>
+          <td class="py-2">{{ mission.name }}</td>
+          <td class="py-2">{{ mission.description }}</td>
+          <td class="py-2">{{ mission.director?.username }}</td>
+          <td class="py-2">
+            <button 
+              (click)="openEditMissionModal(mission)" 
+              class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">
+              Edit
+            </button>
+            <button 
+              (click)="deleteMission(mission.missionId)" 
+              class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- Add Mission Modal -->
+    <div *ngIf="isAddMissionModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white p-6 rounded shadow-lg w-96">
+        <h2 class="text-xl font-bold mb-4">Add Mission</h2>
+        <form (ngSubmit)="addMission()" #addMissionForm="ngForm">
+          <div class="mb-4">
+            <label class="block text-gray-700">Name</label>
+            <input 
+              type="text" 
+              name="name" 
+              [(ngModel)]="newMission.name" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300" />
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Description</label>
+            <textarea 
+              name="description" 
+              [(ngModel)]="newMission.description" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"></textarea>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Director</label>
+            <select 
+              name="directorId" 
+              [(ngModel)]="newMission.directorId" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+              <option value="" disabled selected>Select Director</option>
+              <option *ngFor="let user of directors" [value]="user.userId">{{ user.username }}</option>
+            </select>
+          </div>
+          <div class="flex justify-end">
+            <button 
+              type="button" 
+              (click)="closeAddMissionModal()" 
+              class="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600">
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              [disabled]="!addMissionForm.form.valid" 
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+              Add
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Edit Mission Modal -->
+    <div *ngIf="isEditMissionModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white p-6 rounded shadow-lg w-96">
+        <h2 class="text-xl font-bold mb-4">Edit Mission</h2>
+        <form (ngSubmit)="updateMission()" #editMissionForm="ngForm">
+          <div class="mb-4">
+            <label class="block text-gray-700">Name</label>
+            <input 
+              type="text" 
+              name="name" 
+              [(ngModel)]="editMission.name" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300" />
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Description</label>
+            <textarea 
+              name="description" 
+              [(ngModel)]="editMission.description" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"></textarea>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Director</label>
+            <select 
+              name="directorId" 
+              [(ngModel)]="editMission.directorId" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+              <option value="" disabled>Select Director</option>
+              <option *ngFor="let user of directors" [value]="user.userId">{{ user.username }}</option>
+            </select>
+          </div>
+          <div class="flex justify-end">
+            <button 
+              type="button" 
+              (click)="closeEditMissionModal()" 
+              class="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600">
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              [disabled]="!editMissionForm.form.valid" 
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Success and Error Messages -->
+    <div *ngIf="successMessage" class="mt-4 text-green-500 text-center">
+      {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="mt-4 text-red-500 text-center">
+      {{ errorMessage }}
+    </div>
+  </div>
+  

@@ -1,0 +1,220 @@
+<!-- src/app/components/scientific-data/scientific-data.component.html -->
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Scientific Data</h1>
+    
+    <div class="flex justify-end mb-4">
+      <button 
+        (click)="openAddDataModal()" 
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        Add Scientific Data
+      </button>
+    </div>
+    
+    <table class="min-w-full bg-white">
+      <thead>
+        <tr>
+          <th class="py-2">ID</th>
+          <th class="py-2">Title</th>
+          <th class="py-2">Description</th>
+          <th class="py-2">Mission</th>
+          <th class="py-2">Researcher</th>
+          <th class="py-2">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Iterate over scientific data and display -->
+        <tr *ngFor="let data of scientificDatas" class="text-center border-t">
+          <td class="py-2">{{ data.scientificDataId }}</td>
+          <td class="py-2">{{ data.title }}</td>
+          <td class="py-2">{{ data.description }}</td>
+          <td class="py-2">{{ getMissionName(data.missionId) }}</td>
+          <td class="py-2">{{ getResearcherName(data.researcherId) }}</td>
+          <td class="py-2">
+            <button 
+              (click)="openEditDataModal(data)" 
+              class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">
+              Edit
+            </button>
+            <button 
+              (click)="deleteScientificData(data.scientificDataId)" 
+              class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- Add Scientific Data Modal -->
+    <div *ngIf="isAddDataModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white p-6 rounded shadow-lg w-96">
+        <h2 class="text-xl font-bold mb-4">Add Scientific Data</h2>
+        <form (ngSubmit)="addScientificData()" #addDataForm="ngForm">
+          <div class="mb-4">
+            <label class="block text-gray-700">Title</label>
+            <input 
+              type="text" 
+              name="title" 
+              [(ngModel)]="newScientificData.title" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': addDataForm.controls['title'].invalid && addDataForm.controls['title'].touched}"
+            />
+            <div *ngIf="addDataForm.controls['title'].invalid && addDataForm.controls['title'].touched" class="text-red-500 text-sm">
+              Title is required.
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Description</label>
+            <textarea 
+              name="description" 
+              [(ngModel)]="newScientificData.description" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': addDataForm.controls['description'].invalid && addDataForm.controls['description'].touched}"
+            ></textarea>
+            <div *ngIf="addDataForm.controls['description'].invalid && addDataForm.controls['description'].touched" class="text-red-500 text-sm">
+              Description is required.
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Mission</label>
+            <select 
+              name="missionId" 
+              [(ngModel)]="newScientificData.missionId" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': addDataForm.controls['missionId'].invalid && addDataForm.controls['missionId'].touched}"
+            >
+              <option value="" disabled selected>Select Mission</option>
+              <option *ngFor="let mission of missions" [value]="mission.missionId">{{ mission.name }}</option>
+            </select>
+            <div *ngIf="addDataForm.controls['missionId'].invalid && addDataForm.controls['missionId'].touched" class="text-red-500 text-sm">
+              Mission is required.
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Researcher</label>
+            <select 
+              name="researcherId" 
+              [(ngModel)]="newScientificData.researcherId" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': addDataForm.controls['researcherId'].invalid && addDataForm.controls['researcherId'].touched}"
+            >
+              <option value="" disabled selected>Select Researcher</option>
+              <option *ngFor="let researcher of researchers" [value]="researcher.userId">{{ researcher.username }}</option>
+            </select>
+            <div *ngIf="addDataForm.controls['researcherId'].invalid && addDataForm.controls['researcherId'].touched" class="text-red-500 text-sm">
+              Researcher is required.
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button 
+              type="button" 
+              (click)="closeAddDataModal()" 
+              class="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600">
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              [disabled]="!addDataForm.form.valid" 
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+              Add
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Edit Scientific Data Modal -->
+    <div *ngIf="isEditDataModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white p-6 rounded shadow-lg w-96">
+        <h2 class="text-xl font-bold mb-4">Edit Scientific Data</h2>
+        <form (ngSubmit)="updateScientificData()" #editDataForm="ngForm">
+          <div class="mb-4">
+            <label class="block text-gray-700">Title</label>
+            <input 
+              type="text" 
+              name="title" 
+              [(ngModel)]="editScientificData.title" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': editDataForm.controls['title'].invalid && editDataForm.controls['title'].touched}"
+            />
+            <div *ngIf="editDataForm.controls['title'].invalid && editDataForm.controls['title'].touched" class="text-red-500 text-sm">
+              Title is required.
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Description</label>
+            <textarea 
+              name="description" 
+              [(ngModel)]="editScientificData.description" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': editDataForm.controls['description'].invalid && editDataForm.controls['description'].touched}"
+            ></textarea>
+            <div *ngIf="editDataForm.controls['description'].invalid && editDataForm.controls['description'].touched" class="text-red-500 text-sm">
+              Description is required.
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Mission</label>
+            <select 
+              name="missionId" 
+              [(ngModel)]="editScientificData.missionId" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': editDataForm.controls['missionId'].invalid && editDataForm.controls['missionId'].touched}"
+            >
+              <option value="" disabled>Select Mission</option>
+              <option *ngFor="let mission of missions" [value]="mission.missionId">{{ mission.name }}</option>
+            </select>
+            <div *ngIf="editDataForm.controls['missionId'].invalid && editDataForm.controls['missionId'].touched" class="text-red-500 text-sm">
+              Mission is required.
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Researcher</label>
+            <select 
+              name="researcherId" 
+              [(ngModel)]="editScientificData.researcherId" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': editDataForm.controls['researcherId'].invalid && editDataForm.controls['researcherId'].touched}"
+            >
+              <option value="" disabled>Select Researcher</option>
+              <option *ngFor="let researcher of researchers" [value]="researcher.userId">{{ researcher.username }}</option>
+            </select>
+            <div *ngIf="editDataForm.controls['researcherId'].invalid && editDataForm.controls['researcherId'].touched" class="text-red-500 text-sm">
+              Researcher is required.
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button 
+              type="button" 
+              (click)="closeEditDataModal()" 
+              class="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600">
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              [disabled]="!editDataForm.form.valid" 
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Success and Error Messages -->
+    <div *ngIf="successMessage" class="mt-4 text-green-500 text-center">
+      {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="mt-4 text-red-500 text-center">
+      {{ errorMessage }}
+    </div>
+  </div>
+  

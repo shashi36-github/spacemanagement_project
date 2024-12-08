@@ -1,0 +1,196 @@
+<!-- src/app/components/users/users.component.html -->
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Users</h1>
+    
+    <div class="flex justify-end mb-4">
+      <button 
+        (click)="openAddUserModal()" 
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        Add User
+      </button>
+    </div>
+    
+    <table class="min-w-full bg-white">
+      <thead>
+        <tr>
+          <th class="py-2">ID</th>
+          <th class="py-2">Username</th>
+          <th class="py-2">Email</th>
+          <th class="py-2">Role</th>
+          <th class="py-2">Active</th>
+          <th class="py-2">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Iterate over users and display data -->
+        <tr *ngFor="let user of users" class="text-center border-t">
+          <td class="py-2">{{ user.userId }}</td>
+          <td class="py-2">{{ user.username }}</td>
+          <td class="py-2">{{ user.email }}</td>
+          <td class="py-2">{{ user.role }}</td>
+          <td class="py-2">{{ user.isActive ? 'Yes' : 'No' }}</td>
+          <td class="py-2">
+            <button 
+              (click)="openEditUserModal(user)" 
+              class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">
+              Edit
+            </button>
+            <button 
+              (click)="deleteUser(user.userId)" 
+              class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- Add User Modal -->
+    <div *ngIf="isAddUserModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white p-6 rounded shadow-lg w-96">
+        <h2 class="text-xl font-bold mb-4">Add User</h2>
+        <form (ngSubmit)="addUser()" #addUserForm="ngForm">
+          <div class="mb-4">
+            <label class="block text-gray-700">Username</label>
+            <input 
+              type="text" 
+              name="username" 
+              [(ngModel)]="newUser.username" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300" />
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Email</label>
+            <input 
+              type="email" 
+              name="email" 
+              [(ngModel)]="newUser.email" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300" />
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Role</label>
+            <select 
+              name="role" 
+              [(ngModel)]="newUser.role" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+              <option value="" disabled selected>Select Role</option>
+              <option value="Admin">Admin</option>
+              <option value="MissionDirector">Mission Director</option>
+              <option value="Researcher">Researcher</option>
+              <option value="Engineer">Engineer</option>
+              <option value="SafetyOfficer">Safety Officer</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="FinanceOfficer">Finance Officer</option>
+              <option value="Scientist">Scientist</option>
+              <option value="Analyst">Analyst</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Password</label>
+            <input 
+              type="password" 
+              name="password" 
+              [(ngModel)]="newUser.password" 
+              required 
+              minlength="6"
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300" />
+          </div>
+          <div class="flex justify-end">
+            <button 
+              type="button" 
+              (click)="closeAddUserModal()" 
+              class="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600">
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              [disabled]="!addUserForm.form.valid" 
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+              Add
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Edit User Modal -->
+    <div *ngIf="isEditUserModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white p-6 rounded shadow-lg w-96">
+        <h2 class="text-xl font-bold mb-4">Edit User</h2>
+        <form (ngSubmit)="updateUser()" #editUserForm="ngForm">
+          <div class="mb-4">
+            <label class="block text-gray-700">Username</label>
+            <input 
+              type="text" 
+              name="username" 
+              [(ngModel)]="editUser.username" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300" />
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Email</label>
+            <input 
+              type="email" 
+              name="email" 
+              [(ngModel)]="editUser.email" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300" />
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Role</label>
+            <select 
+              name="role" 
+              [(ngModel)]="editUser.role" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300">
+              <option value="" disabled>Select Role</option>
+              <option value="Admin">Admin</option>
+              <option value="MissionDirector">Mission Director</option>
+              <option value="Researcher">Researcher</option>
+              <option value="Engineer">Engineer</option>
+              <option value="SafetyOfficer">Safety Officer</option>
+              <option value="Supervisor">Supervisor</option>
+              <option value="FinanceOfficer">Finance Officer</option>
+              <option value="Scientist">Scientist</option>
+              <option value="Analyst">Analyst</option>
+            </select>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Password</label>
+            <input 
+              type="password" 
+              name="password" 
+              [(ngModel)]="editUser.password" 
+              minlength="6"
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300" />
+            <small class="text-gray-500">Leave blank to keep existing password.</small>
+          </div>
+          <div class="flex justify-end">
+            <button 
+              type="button" 
+              (click)="closeEditUserModal()" 
+              class="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600">
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              [disabled]="!editUserForm.form.valid" 
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Success and Error Messages -->
+    <div *ngIf="successMessage" class="mt-4 text-green-500 text-center">
+      {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="mt-4 text-red-500 text-center">
+      {{ errorMessage }}
+    </div>
+  </div>
+  

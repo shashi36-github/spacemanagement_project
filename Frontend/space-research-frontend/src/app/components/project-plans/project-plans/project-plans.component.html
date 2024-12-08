@@ -1,0 +1,220 @@
+<!-- src/app/components/project-plans/project-plans.component.html -->
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Project Plans</h1>
+    
+    <div class="flex justify-end mb-4">
+      <button 
+        (click)="openAddPlanModal()" 
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        Add Project Plan
+      </button>
+    </div>
+    
+    <table class="min-w-full bg-white">
+      <thead>
+        <tr>
+          <th class="py-2">ID</th>
+          <th class="py-2">Title</th>
+          <th class="py-2">Description</th>
+          <th class="py-2">Mission</th>
+          <th class="py-2">Assigned Engineer</th>
+          <th class="py-2">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Iterate over project plans and display data -->
+        <tr *ngFor="let plan of projectPlans" class="text-center border-t">
+          <td class="py-2">{{ plan.projectPlanId }}</td>
+          <td class="py-2">{{ plan.title }}</td>
+          <td class="py-2">{{ plan.description }}</td>
+          <td class="py-2">{{ getMissionName(plan.missionId) }}</td>
+          <td class="py-2">{{ getEngineerName(plan.assignedEngineerId) }}</td>
+          <td class="py-2">
+            <button 
+              (click)="openEditPlanModal(plan)" 
+              class="bg-green-500 text-white px-2 py-1 rounded mr-2 hover:bg-green-600">
+              Edit
+            </button>
+            <button 
+              (click)="deleteProjectPlan(plan.projectPlanId)" 
+              class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <!-- Add Project Plan Modal -->
+    <div *ngIf="isAddPlanModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white p-6 rounded shadow-lg w-96">
+        <h2 class="text-xl font-bold mb-4">Add Project Plan</h2>
+        <form (ngSubmit)="addProjectPlan()" #addPlanForm="ngForm">
+          <div class="mb-4">
+            <label class="block text-gray-700">Title</label>
+            <input 
+              type="text" 
+              name="title" 
+              [(ngModel)]="newProjectPlan.title" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': addPlanForm.controls['title'].invalid && addPlanForm.controls['title'].touched}"
+            />
+            <div *ngIf="addPlanForm.controls['title'].invalid && addPlanForm.controls['title'].touched" class="text-red-500 text-sm">
+              Title is required.
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Description</label>
+            <textarea 
+              name="description" 
+              [(ngModel)]="newProjectPlan.description" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': addPlanForm.controls['description'].invalid && addPlanForm.controls['description'].touched}"
+            ></textarea>
+            <div *ngIf="addPlanForm.controls['description'].invalid && addPlanForm.controls['description'].touched" class="text-red-500 text-sm">
+              Description is required.
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Mission</label>
+            <select 
+              name="missionId" 
+              [(ngModel)]="newProjectPlan.missionId" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': addPlanForm.controls['missionId'].invalid && addPlanForm.controls['missionId'].touched}"
+            >
+              <option value="" disabled selected>Select Mission</option>
+              <option *ngFor="let mission of missions" [value]="mission.missionId">{{ mission.name }}</option>
+            </select>
+            <div *ngIf="addPlanForm.controls['missionId'].invalid && addPlanForm.controls['missionId'].touched" class="text-red-500 text-sm">
+              Mission is required.
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Assigned Engineer</label>
+            <select 
+              name="assignedEngineerId" 
+              [(ngModel)]="newProjectPlan.assignedEngineerId" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': addPlanForm.controls['assignedEngineerId'].invalid && addPlanForm.controls['assignedEngineerId'].touched}"
+            >
+              <option value="" disabled selected>Select Engineer</option>
+              <option *ngFor="let engineer of engineers" [value]="engineer.userId">{{ engineer.username }}</option>
+            </select>
+            <div *ngIf="addPlanForm.controls['assignedEngineerId'].invalid && addPlanForm.controls['assignedEngineerId'].touched" class="text-red-500 text-sm">
+              Assigned Engineer is required.
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button 
+              type="button" 
+              (click)="closeAddPlanModal()" 
+              class="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600">
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              [disabled]="!addPlanForm.form.valid" 
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+              Add
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Edit Project Plan Modal -->
+    <div *ngIf="isEditPlanModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-white p-6 rounded shadow-lg w-96">
+        <h2 class="text-xl font-bold mb-4">Edit Project Plan</h2>
+        <form (ngSubmit)="updateProjectPlan()" #editPlanForm="ngForm">
+          <div class="mb-4">
+            <label class="block text-gray-700">Title</label>
+            <input 
+              type="text" 
+              name="title" 
+              [(ngModel)]="editProjectPlan.title" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': editPlanForm.controls['title'].invalid && editPlanForm.controls['title'].touched}"
+            />
+            <div *ngIf="editPlanForm.controls['title'].invalid && editPlanForm.controls['title'].touched" class="text-red-500 text-sm">
+              Title is required.
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Description</label>
+            <textarea 
+              name="description" 
+              [(ngModel)]="editProjectPlan.description" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': editPlanForm.controls['description'].invalid && editPlanForm.controls['description'].touched}"
+            ></textarea>
+            <div *ngIf="editPlanForm.controls['description'].invalid && editPlanForm.controls['description'].touched" class="text-red-500 text-sm">
+              Description is required.
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Mission</label>
+            <select 
+              name="missionId" 
+              [(ngModel)]="editProjectPlan.missionId" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': editPlanForm.controls['missionId'].invalid && editPlanForm.controls['missionId'].touched}"
+            >
+              <option value="" disabled>Select Mission</option>
+              <option *ngFor="let mission of missions" [value]="mission.missionId">{{ mission.name }}</option>
+            </select>
+            <div *ngIf="editPlanForm.controls['missionId'].invalid && editPlanForm.controls['missionId'].touched" class="text-red-500 text-sm">
+              Mission is required.
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700">Assigned Engineer</label>
+            <select 
+              name="assignedEngineerId" 
+              [(ngModel)]="editProjectPlan.assignedEngineerId" 
+              required 
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+              [ngClass]="{'border-red-500': editPlanForm.controls['assignedEngineerId'].invalid && editPlanForm.controls['assignedEngineerId'].touched}"
+            >
+              <option value="" disabled>Select Engineer</option>
+              <option *ngFor="let engineer of engineers" [value]="engineer.userId">{{ engineer.username }}</option>
+            </select>
+            <div *ngIf="editPlanForm.controls['assignedEngineerId'].invalid && editPlanForm.controls['assignedEngineerId'].touched" class="text-red-500 text-sm">
+              Assigned Engineer is required.
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button 
+              type="button" 
+              (click)="closeEditPlanModal()" 
+              class="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600">
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              [disabled]="!editPlanForm.form.valid" 
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Success and Error Messages -->
+    <div *ngIf="successMessage" class="mt-4 text-green-500 text-center">
+      {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="mt-4 text-red-500 text-center">
+      {{ errorMessage }}
+    </div>
+  </div>
+  
